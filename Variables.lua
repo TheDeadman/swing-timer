@@ -7,10 +7,14 @@ local defaults = {
     gcdSpell = "Flash of Light",
     gcdInterval = 0.00,
     showSwing      = true,
+    swingInterval = 0.00,
+    showMarkOne = true,
+    showMarkTwo = true,
+    thickness = 1,
+    opacity = 1
 }
 
 local function copyDefaults(src, dest)
-    print("COPY DEFAULTS")
     for k, v in pairs(src) do
         if type(v) == "table" then
             dest[k] = dest[k] or {}
@@ -19,19 +23,6 @@ local function copyDefaults(src, dest)
             dest[k] = v
         end
     end
-end
-
-local function inherit(dest, src)
-    return setmetatable(dest or {}, {
-        __index = function(t, k)
-            local v = src[k]
-            if type(v) == "table" then              -- auto-spawn nested tables
-                v = inherit(nil, v)                 -- give child its own metatable
-                rawset(t, k, v)                     -- cache for future lookups
-            end
-            return v
-        end,
-    })
 end
 
 -- 2. Ensure SavedVariable exists
@@ -62,10 +53,25 @@ f:SetScript("OnEvent", function(_, event, addonName)
     copyDefaults(defaults, DB)
 
     print("|cff59f0ff" .. ADDON_NAME .. ":|r loaded.  " ..
-        "myVariable is |cffffff00" .. tostring(ADDeadmansSwingTimerDB.showGCD) .. "|r")
+        "Show GCD is |cffffff00" .. tostring(ADDeadmansSwingTimerDB.showGCD) .. " - " .. tostring(ADDeadmansSwingTimerDB.gcdInterval) .. "|r")
 
-    print(ADDON_NAME .. " loaded – interval is "
-        .. tostring(ADDeadmansSwingTimerDB.gcdInterval))
+    print("|cff59f0ff" .. ADDON_NAME .. ":|r loaded.  " ..
+        "Show Swing is |cffffff00" .. tostring(ADDeadmansSwingTimerDB.showSwing) .. " - " .. tostring(ADDeadmansSwingTimerDB.swingInterval) .. "|r")
+
+    print("|cff59f0ff" .. ADDON_NAME .. ":|r loaded.  " ..
+        "Show Mark One is |cffffff00" .. tostring(ADDeadmansSwingTimerDB.showMarkOne) .. "|r")
+
+    print("|cff59f0ff" .. ADDON_NAME .. ":|r loaded.  " ..
+        "Show Mark Two is |cffffff00" .. tostring(ADDeadmansSwingTimerDB.showMarkTwo) .. "|r")
+
+        
+    print("|cff59f0ff" .. ADDON_NAME .. ":|r loaded.  " ..
+        "Opacity is |cffffff00" .. tostring(ADDeadmansSwingTimerDB.opacity) .. "|r")
+
+        
+    print("|cff59f0ff" .. ADDON_NAME .. ":|r loaded.  " ..
+        "Thickness is |cffffff00" .. tostring(ADDeadmansSwingTimerDB.thickness) .. "|r")
+
 end)
 
 
@@ -92,31 +98,120 @@ function Command:gcd(arg)
     end
 end
 
--- /addeadman timer 100
+-- /addeadman gcdinterval 0.05
 function Command:gcdinterval(arg)
     local seconds = tonumber(arg)
-    if not seconds or seconds <= 0 then
-        print("|cff00ff80addeadman|r usage: /addeadman timer <seconds>")
+    if not seconds then
+        print("not seconds")
+    end
+    if not seconds or seconds < 0 then
+        print("|cff00ff80addeadman|r usage: /addeadman gcdinterval <0.5|0.05|etc>")
         return
     end
-    print(("|cff00ff80addeadman|r: starting %d-second timer…"):format(seconds))
     ADDeadmansSwingTimerDB.gcdInterval = seconds;
 end
 
--- /addeadman test
-function Command:test()
-    print("|cff00ff80addeadman|r: self-test OK ✅")
-    -- put any diagnostic code here
+
+
+function Command:swing(arg)
+    arg = arg:lower()
+    if arg == "on" then
+        ADDeadmansSwingTimerDB.showSwing = true
+        print("|cff00ff80addeadman|r: Swing display |cff00ff00ENABLED|r.")
+        -- (enable whatever frame/logic you use)
+    elseif arg == "off" then
+        ADDeadmansSwingTimerDB.showSwing = false
+        print("|cff00ff80addeadman|r: Swing display |cffff2020DISABLED|r.")
+        -- (disable the frame/logic)
+    else
+        print("|cff00ff80addeadman|r usage: /addeadman swing on|off")
+    end
 end
+
+-- /addeadman swinginterval 0.05
+function Command:swinginterval(arg)
+    local seconds = tonumber(arg)
+    if not seconds or seconds <= 0 then
+        print("|cff00ff80addeadman|r usage: /addeadman swinginterval <|0.5|0.05|etc>")
+        return
+    end
+    ADDeadmansSwingTimerDB.swingInterval = seconds;
+end
+
+
+function Command:markone(arg)
+    arg = arg:lower()
+    if arg == "on" then
+        ADDeadmansSwingTimerDB.showMarkOne = true
+        print("|cff00ff80addeadman|r: Mark One display |cff00ff00ENABLED|r.")
+        -- (enable whatever frame/logic you use)
+    elseif arg == "off" then
+        ADDeadmansSwingTimerDB.showMarkOne = false
+        print("|cff00ff80addeadman|r: Mark One display |cffff2020DISABLED|r.")
+        -- (disable the frame/logic)
+    else
+        print("|cff00ff80addeadman|r usage: /addeadman swing on|off")
+    end
+end
+
+
+function Command:marktwo(arg)
+    arg = arg:lower()
+    if arg == "on" then
+        ADDeadmansSwingTimerDB.showMarkTwo = true
+        print("|cff00ff80addeadman|r: Mark Two display |cff00ff00ENABLED|r.")
+        -- (enable whatever frame/logic you use)
+    elseif arg == "off" then
+        ADDeadmansSwingTimerDB.showMarkTwo = false
+        print("|cff00ff80addeadman|r: Mark Two display |cffff2020DISABLED|r.")
+        -- (disable the frame/logic)
+    else
+        print("|cff00ff80addeadman|r usage: /addeadman swing on|off")
+    end
+end
+
+
+function Command:thickness(arg)
+    local thick = tonumber(arg)
+    if not thick or thick <= 0 then
+        print("|cff00ff80addeadman|r usage: /addeadman thickness <1|2|etc>")
+        return
+    end
+    ADDeadmansSwingTimerDB.thickness = thick;
+end
+
+function Command:opacity(arg)
+    local opacity = tonumber(arg)
+    if not opacity or opacity <= 0 then
+        print("|cff00ff80addeadman|r usage: /addeadman opacity <1|0.5|etc>")
+        return
+    end
+    ADDeadmansSwingTimerDB.opacity = opacity;
+end
+
+
+function Command:gcdspell(arg)
+    local spell = arg;
+    if not spell then
+        print("|cff00ff80addeadman|r usage: /addeadman spell <spell name> e.g. Flash of Light")
+        return
+    end
+    ADDeadmansSwingTimerDB.gcdSpell = spell;
+end
+
 
 -- Fallback (/addeadman or unknown sub-command)
 function Command:help()
     print("|cff00ff80addeadman|r commands:")
     print("  /addeadman gcd on|off      – toggle GCD display")
-    print("  /addeadman gcdinterval <sec>     – set interval for gcd bar re-draws")
+    print("  /addeadman gcdinterval <sec>     – set interval for gcd bar re-draws (e.g. 0.05)")
     print("  /addeadman swing on|off      – toggle swing display")
-    print("  /addeadman swinginterval <sec>     – set interval for swing bar re-draws")
-    print("  /addeadman test            – run self-test")
+    print("  /addeadman swinginterval <sec>     – set interval for swing bar re-draws (e.g. 0.05)")
+    print("  /addeadman markOne on|off      – toggle markOne display")
+    print("  /addeadman markTwo on|off      – toggle markTwo display")
+    print("  /addeadman opacity <1|0.5|etc>      – Update line opacity")
+    print("  /addeadman width <1|2|etc>      – Update line thickness")
+    print("  /addeadman gcdspell <name of spell>      – Set the spell to be used as the GCD indicator. It should be a spell that is on the GCD and has no cooldown.")
 end
 
 SLASH_ADDEADMAN1 = "/addeadman"
