@@ -1,4 +1,4 @@
-## Interface: 11403
+## Interface: 110105
 ## Title: AD_Deadman's Swing Timer
 ## Notes: Full screen CD Rotation style swing timer
 ## Author: AD_Deadman
