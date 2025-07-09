@@ -2,7 +2,7 @@
 ## Title: AD_Deadman's Swing Timer
 ## Notes: Full screen CD Rotation style swing timer
 ## Author: AD_Deadman
-## Version: 1.0
+## Version: 1.0.0
 ## SavedVariables: ADDeadmansSwingTimerDB
 # SavedVariablesPerCharacter: MyAddonDB  -- per-character; pick ONE
 # SavedVariablesPerCharacter: ADDeadmansSwingTimerDB
